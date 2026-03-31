@@ -47,7 +47,7 @@
 
 **Overview:** [Purpose](#the-purpose-of-this-project) · [What is PAI?](#what-is-pai) · [New to AI?](#new-to-this-start-here) · [Principles](#the-pai-principles) · [Primitives](#pai-primitives)
 
-**Get Started:** [Installation](#-installation) · [Releases](Releases/)
+**Get Started:** [Installation](#-installation) · [Releases](Releases/) · [Packs](Packs/)
 
 **Resources:** [FAQ](#-faq) · [Roadmap](#-roadmap) · [Community](#-community) · [Contributing](#-contributing)
 
@@ -382,6 +382,41 @@ bun ~/.claude/PAI/Tools/BuildCLAUDE.ts
 - [ ] Confirm the statusline displays correctly
 - [ ] Test voice notifications (if enabled)
 - [ ] Run a simple prompt to confirm PAI responds correctly
+
+---
+
+## 📦 PAI Packs
+
+Don't want to install all of PAI? **Packs** are standalone, AI-installable capabilities you can add one at a time. Each pack is self-contained — your AI reads the install guide and sets everything up for you. No PAI installation required.
+
+Point your AI at any pack and say "install this":
+
+```
+"Install the Research pack from PAI/Packs/Research/"
+```
+
+Your AI walks through a 5-phase wizard: system analysis, user questions, backup, installation, verification.
+
+### Available Packs
+
+| Pack | What It Does |
+|------|-------------|
+| [ContextSearch](Packs/ContextSearch/) | `/context-search` and `/cs` — instant recall of prior work sessions |
+| [Agents](Packs/Agents/) | Custom agent composition from traits, voices, and personalities |
+| [ContentAnalysis](Packs/ContentAnalysis/) | Wisdom extraction from videos, podcasts, articles, and YouTube |
+| [Investigation](Packs/Investigation/) | OSINT and investigation — company intel, people search, domain lookup |
+| [Media](Packs/Media/) | AI image generation, diagrams, infographics, and Remotion video |
+| [Research](Packs/Research/) | Multi-agent research — quick, standard, extensive, and deep modes |
+| [Scraping](Packs/Scraping/) | Web scraping via Bright Data proxy and Apify social media actors |
+| [Security](Packs/Security/) | Recon, web app testing, prompt injection testing, security news |
+| [Telos](Packs/Telos/) | Life OS — goals, beliefs, wisdom, project dashboards, McKinsey reports |
+| [Thinking](Packs/Thinking/) | First principles, council debates, red team, brainstorming, science |
+| [USMetrics](Packs/USMetrics/) | 68 US economic indicators from FRED, EIA, Treasury, BLS, Census |
+| [Utilities](Packs/Utilities/) | CLI generation, skill scaffolding, Fabric patterns, Cloudflare, browser automation |
+
+Each pack works standalone — install one, install five, or install all of them. They're designed to give you PAI-level capabilities whether or not you run the full PAI system.
+
+**[Browse all packs →](Packs/)**
 
 ---
 

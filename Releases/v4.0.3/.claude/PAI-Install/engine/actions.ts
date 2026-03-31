@@ -14,6 +14,48 @@ import { detectSystem, validateElevenLabsKey } from "./detect";
 import { generateSettingsJson } from "./config-gen";
 
 /**
+ * Remove duplicate bun PATH entries from shell config.
+ * The bun.sh installer appends entries on every run — if install is
+ * interrupted and retried, the config file accumulates duplicates.
+ * Fixes: https://github.com/danielmiessler/Personal_AI_Infrastructure/issues/954
+ */
+function deduplicateBunShellEntries(): void {
+  const home = homedir();
+  const shell = process.env.SHELL || "/bin/zsh";
+
+  let rcFile: string;
+  if (shell.includes("fish")) {
+    rcFile = join(home, ".config", "fish", "config.fish");
+  } else if (shell.includes("bash")) {
+    rcFile = join(home, ".bashrc");
+  } else {
+    rcFile = join(home, ".zshrc");
+  }
+
+  if (!existsSync(rcFile)) return;
+
+  try {
+    const content = readFileSync(rcFile, "utf-8");
+
+    // Match bun config blocks: "# bun" line followed by export/set lines
+    const bunBlockPattern = shell.includes("fish")
+      ? /\n?# bun\nset --export BUN_INSTALL "[^"]*"\nset --export PATH \$BUN_INSTALL\/bin \$PATH\n?/g
+      : /\n?# bun\nexport BUN_INSTALL="[^"]*"\nexport PATH="?\$BUN_INSTALL\/bin:\$PATH"?\n?/g;
+
+    const matches = content.match(bunBlockPattern);
+    if (!matches || matches.length <= 1) return; // No duplicates
+
+    // Remove all bun blocks, then add back exactly one
+    let cleaned = content.replace(bunBlockPattern, "");
+    cleaned = cleaned.trimEnd() + "\n" + matches[0].trim() + "\n";
+
+    writeFileSync(rcFile, cleaned);
+  } catch {
+    // Non-fatal — duplicates are cosmetic, not breaking
+  }
+}
+
+/**
  * Search existing .claude directories and config locations for a given env key.
  * Returns the value if found, or empty string.
  */
@@ -282,6 +324,31 @@ export async function runPrerequisites(
     await emit({ event: "progress", step: "prerequisites", percent: 20, detail: `Git found: v${det.tools.git.version}` });
   }
 
+  // Check for unzip — required by bun installer but missing on minimal Linux installs
+  // Fixes: https://github.com/danielmiessler/Personal_AI_Infrastructure/issues/856
+  if (!det.tools.bun.installed && det.os.platform === "linux") {
+    const hasUnzip = tryExec("which unzip", 5000);
+    if (hasUnzip === null) {
+      await emit({ event: "progress", step: "prerequisites", percent: 35, detail: "Installing unzip (required by Bun)..." });
+
+      // Try common package managers
+      const installed =
+        tryExec("sudo apt-get install -y unzip 2>/dev/null", 30000) !== null ||
+        tryExec("sudo dnf install -y unzip 2>/dev/null", 30000) !== null ||
+        tryExec("sudo yum install -y unzip 2>/dev/null", 30000) !== null ||
+        tryExec("sudo pacman -S --noconfirm unzip 2>/dev/null", 30000) !== null;
+
+      if (installed) {
+        await emit({ event: "message", content: "unzip installed successfully." });
+      } else {
+        await emit({
+          event: "message",
+          content: "⚠️  Could not install 'unzip' automatically. Bun requires it.\n   Please install manually: sudo apt install unzip (Debian/Ubuntu) or sudo dnf install unzip (Fedora/RHEL)",
+        });
+      }
+    }
+  }
+
   // Bun should already be installed by bootstrap script, but verify
   if (!det.tools.bun.installed) {
     await emit({ event: "progress", step: "prerequisites", percent: 40, detail: "Installing Bun..." });
@@ -291,6 +358,7 @@ export async function runPrerequisites(
       const bunBin = join(homedir(), ".bun", "bin");
       process.env.PATH = `${bunBin}:${process.env.PATH}`;
       await emit({ event: "message", content: "Bun installed successfully." });
+      deduplicateBunShellEntries(); // Fix #954: clean up duplicate entries from retries
     }
   } else {
     await emit({ event: "progress", step: "prerequisites", percent: 50, detail: `Bun found: v${det.tools.bun.version}` });
