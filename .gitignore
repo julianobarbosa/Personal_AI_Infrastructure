@@ -53,6 +53,13 @@ dist/
 build/
 out/
 
+# Re-include Pulse Observability built dashboard — must ship in public releases
+# so fresh installs get a working dashboard immediately. The `out/` rule above
+# is correct for repo-root build artifacts; this re-include scopes only to the
+# release directories.
+!Releases/*/.claude/PAI/PULSE/Observability/out/
+!Releases/*/.claude/PAI/PULSE/Observability/out/**
+
 # Cache
 .cache/
 *.cache

@@ -239,6 +239,37 @@
             "CLOUDFLARE_ACCOUNT_ID=[a-f0-9]{32}"
           ]
         },
+        "private_repos": {
+          "description": "Private GitHub repository references that shouldn't be public",
+          "patterns": [
+            "danielmiessler/arbol",
+            "danielmiessler/feed",
+            "danielmiessler/substrate",
+            "danielmiessler/telos",
+            "danielmiessler/ladder"
+          ]
+        },
+        "personal_project_urls": {
+          "description": "Personal project URLs that reveal private infrastructure",
+          "patterns": [
+            "thesurface\\.ai"
+          ],
+          "severity": "high"
+        },
+        "da_names": {
+          "description": "DA (Digital Assistant) name patterns",
+          "patterns": [
+            "\\bDevi\\b"
+          ]
+        },
+        "imessage_bot": {
+          "description": "iMessage bot infrastructure references",
+          "patterns": [
+            "iMessageBot",
+            "iMessage[_\\s]?[Bb]ot",
+            "imessage[_-]bot"
+          ]
+        },
         "misc_sensitive": {
           "description": "Miscellaneous sensitive patterns",
           "patterns": [
